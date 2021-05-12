@@ -1,47 +1,29 @@
-const http = require('http');
-const {getUsers, addUser} = require('./repository')
+const express = require('express')
+const users = require('./users-router')
+const cors = require('cors')
 
-const cors = (req, res) => {
-// Set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Access-Control-Request-Method', '*')
-    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET')
-    res.setHeader('Access-Control-Allow-Headers', '*')
-    if (req.method === 'OPTIONS') {
-        res.writeHead(200)
-        res.end()
-        return true
-    }
-    return false
-}
+const app = express()
+const port = 7442
 
 
-const server = http.createServer((req, res) => {
-    if (cors(req, res)) return;
+app.use(cors())
+app.use('/users', users)
 
-
-    console.log('some req')
-
-    switch (req.url) {
-        case "/users":
-            if (req.method === "POST") {
-                addUser("Max")
-                res.write(JSON.stringify({success: true}))
-            } else {
-                res.write(JSON.stringify(getUsers()))
-            }
-            break;
-        case "/lessons":
-            res.write('tasks')
-            break
-        default:
-            res.write('page not found')
-
-    }
-    res.end()
+app.get('/tasks', async (req, res) => {
+    res.send("tasks")
 })
 
-server.listen(7442)
+app.use((req, res) => {
+    res.send(404)
+})
+
+app.listen(port, () => {
+    console.log(`Example app listening at http://localhost:${port}`)
+})
 
 
-console.log(http)
+process.on('unhandledRejection', function (reason, p) {
+    console.log(reason, p)
+})
+
+
